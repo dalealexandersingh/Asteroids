@@ -1,0 +1,579 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title></title>
+
+  <style>
+    body
+    {
+      margin: 0px !important;
+    }
+
+    #Main
+    {
+      background-color: black;
+      width: 100%;
+      height: 100vh;
+      position: absolute;
+      overflow: hidden;
+    }
+
+    .Ship
+    {
+      width: 100px;
+      height: 100px;
+      position: absolute;
+      background-image: url('Ship.png');
+      z-index: 10;
+
+
+      /*box-shadow:
+    0 0 0 1em White,
+    0 1em 0 1em White,
+    -2.5em 1.5em 0 .5em White,
+    2.5em 1.5em 0 .5em White,
+    -3em -3em 0 0 White,
+    3em -3em 0 0 White,
+    -2em -2em 0 0 White,
+    2em -2em 0 0 White,
+    -3em -1em 0 0 White,
+    -2em -1em 0 0 White,
+    2em -1em 0 0 White,
+    3em -1em 0 0 White,
+    -4em 0 0 0 White,
+    -3em 0 0 0 White,
+    3em 0 0 0 White,
+    4em 0 0 0 White,
+    -5em 1em 0 0 White,
+    -4em 1em 0 0 White,
+    4em 1em 0 0 White,
+    5em 1em 0 0 White,
+    -5em 2em 0 0 White,
+    5em 2em 0 0 White,
+    -5em 3em 0 0 White,
+    -3em 3em 0 0 White,
+    3em 3em 0 0 White,
+    5em 3em 0 0 White,
+    -2em 4em 0 0 White,
+    -1em 4em 0 0 White,
+    1em 4em 0 0 White,
+    2em 4em 0 0 White;
+
+    background: White;
+    width: 1em;
+    height: 1em;
+    overflow: hidden;
+
+    /*margin: 20px 0 70px 65px;*/*/
+
+    }
+
+    .Ship3
+    {
+      width: 254px;
+      height: 108px;
+      position: absolute;
+      /*transition: transform 0.1s;*/
+      background-image: url('Ship3.png');
+      z-index: 10;
+    }
+
+    .Bullet
+    {
+      width: 30px;
+      height: 3px;
+      border-radius: 3px;
+      position: absolute;
+      /*transition: transform 0.1s;*/
+      border-radius: 5px;
+      background-color: orange;
+      border: 1px solid red;
+    }
+
+    .Asteroid1
+    {
+      width: 36px;
+      height: 36px;
+      position: absolute;
+      background-image: url('Asteroid1.png');
+      z-index: 9;
+    }
+
+    .Asteroid2
+    {
+      width: 128px;
+      height: 147px;
+      position: absolute;
+      background-image: url('Asteroid2.png');
+      z-index: 9;
+    }
+
+    .Asteroid3
+    {
+      width: 48px;
+      height: 81px;
+      position: absolute;
+      background-image: url('Asteroid3.png');
+      z-index: 9;
+    }
+
+    .Asteroid4
+    {
+      width: 51px;
+      height: 76px;
+      position: absolute;
+      background-image: url('Asteroid4.png');
+      z-index: 9;
+    }
+
+    .Asteroid5
+    {
+      width: 150px;
+      height: 142px;
+      position: absolute;
+      background-image: url('Asteroid5.png');
+      z-index: 9;
+    }
+
+    .Asteroid6
+    {
+      width: 132px;
+      height: 150px;
+      position: absolute;
+      background-image: url('Asteroid6.png');
+      z-index: 9;
+    }
+
+    .Asteroid7
+    {
+      width: 136px;
+      height: 128px;
+      position: absolute;
+      background-image: url('Asteroid7.png');
+      z-index: 9;
+    }
+  </style>
+
+  <script>
+
+    function Load() {
+
+      window.Main = document.getElementById("Main");
+
+      window.ShipList = [];
+      window.BulletList = [];
+      window.AsteroidList = [];
+
+      window.ShipList.push(new Ship());
+      window.AsteroidList.push(new Asteroid("1"));
+      window.AsteroidList.push(new Asteroid("2"));
+      window.AsteroidList.push(new Asteroid("3"));
+      window.AsteroidList.push(new Asteroid("4"));
+      window.AsteroidList.push(new Asteroid("5"));
+      window.AsteroidList.push(new Asteroid("6"));
+      window.AsteroidList.push(new Asteroid("7"));
+
+      var timer = setInterval(function () {
+
+        var Number = parseInt(Math.random() * 7) + 1;
+        window.AsteroidList.push(new Asteroid(Number.toString()));
+
+      }, 3000);
+
+      var timer = setInterval(function () {
+
+        for (var i = 0; i < window.ShipList.length; i++) {
+          window.ShipList[i].ApplyAcceleration();
+        }
+
+        for (var i = 0; i < window.BulletList.length; i++) {
+          window.BulletList[i].ApplyAcceleration();
+        }
+
+        for (var i = 0; i < window.AsteroidList.length; i++) {
+          window.AsteroidList[i].ApplyAcceleration();
+        }
+
+      }, 1);
+
+
+      window.Main.addEventListener('mousedown', function (event) {
+
+        var clickX = event.pageX - window.Main.offsetLeft;
+        var clickY = event.pageY - window.Main.offsetTop;
+
+        for (var i = 0; i < window.ShipList.length; i++) {
+          window.ShipList[i].Boost(clickX, clickY);
+        }
+
+      }, true);
+
+    }
+
+    function Asteroid(Number) {
+
+      this.Div = document.createElement('div');
+      this.Div.className = "Asteroid" + Number;
+      window.Main.appendChild(this.Div);
+
+      this.X = 0;
+      this.Y = 0;
+      var variance = 0.2
+
+      this.VelocityX = ((Math.random() * 2) - 1) * variance;
+      this.VelocityY = ((Math.random() * 2) - 1) * variance;
+      this.AngleIncrement = ((Math.random() * 2) - 1) * variance;
+      this.Angle = 0;
+
+      var Me = this;
+
+      this.ApplyAcceleration = function () {
+
+        Me.X = Me.X + Me.VelocityX;
+        Me.Y = Me.Y + Me.VelocityY;
+        Me.Angle = Me.Angle + Me.AngleIncrement;
+
+        if (Me.X < 0) {
+          Me.X = window.innerWidth - 5;
+        }
+
+        if (Me.X >= window.innerWidth) {
+          Me.X = 0;
+        }
+
+        if (Me.Y < 0) {
+          Me.Y = window.innerHeight - 5;
+        }
+
+        if (Me.Y > window.innerHeight) {
+          Me.Y = 0;
+        }
+
+        Me.UpdatePosition();
+
+      }
+
+      this.UpdatePosition = function () {
+
+        Me.Div.style.left = Me.X - (Me.Div.clientWidth / 2) + 'px';
+        Me.Div.style.top = Me.Y - (Me.Div.clientHeight / 2) + 'px';
+        Me.Div.style.transform = 'rotate(' + Me.Angle + 'deg)';
+
+      }
+
+      this.ContainsPoint = function (x, y) {
+
+        var Radius = ((Me.Div.clientWidth + Me.Div.clientHeight) / 4);
+
+        var XDiff = Math.abs(Me.X - x);
+        var YDiff = Math.abs(Me.Y - y);
+
+        if ((XDiff < Radius) && (YDiff < Radius)) {
+          //return true
+
+          //Remove
+          if (Me.Div.className == "Asteroid1") {
+
+            var ii = window.AsteroidList.indexOf(Me)
+
+            if (ii >= 0) {
+              window.AsteroidList.splice(ii, 1);
+              window.Main.removeChild(Me.Div);
+            }
+          }
+
+          //split 3 & 4
+          if (Me.Div.className == "Asteroid3" || Me.Div.className == "Asteroid4") {
+
+            var ii = window.AsteroidList.indexOf(Me)
+
+            if (ii >= 0) {
+              window.AsteroidList.splice(ii, 1);
+              window.Main.removeChild(Me.Div);
+            }
+
+            var Ast1 = new Asteroid("1")
+            Ast1.X = Me.X;
+            Ast1.Y = Me.Y;
+
+            var Ast2 = new Asteroid("1")
+            Ast2.X = Me.X;
+            Ast2.Y = Me.Y;
+
+            window.AsteroidList.push(Ast1);
+            window.AsteroidList.push(Ast2);
+
+          }
+
+
+          //split 2
+          if (Me.Div.className == "Asteroid2") {
+
+            var ii = window.AsteroidList.indexOf(Me)
+
+            if (ii >= 0) {
+              window.AsteroidList.splice(ii, 1);
+              window.Main.removeChild(Me.Div);
+            }
+
+            var Ast1 = new Asteroid("1")
+            Ast1.X = Me.X;
+            Ast1.Y = Me.Y;
+
+            var Ast2 = new Asteroid("1")
+            Ast2.X = Me.X;
+            Ast2.Y = Me.Y;
+
+            var Ast3 = new Asteroid("1")
+            Ast3.X = Me.X;
+            Ast3.Y = Me.Y;
+
+            window.AsteroidList.push(Ast1);
+            window.AsteroidList.push(Ast2);
+            window.AsteroidList.push(Ast3);
+
+          }
+
+          //split 6 & 7
+          if (Me.Div.className == "Asteroid6" || Me.Div.className == "Asteroid7") {
+
+            var ii = window.AsteroidList.indexOf(Me)
+
+            if (ii >= 0) {
+              window.AsteroidList.splice(ii, 1);
+              window.Main.removeChild(Me.Div);
+            }
+
+            var Ast1 = new Asteroid("3")
+            Ast1.X = Me.X;
+            Ast1.Y = Me.Y;
+
+            var Ast2 = new Asteroid("4")
+            Ast2.X = Me.X;
+            Ast2.Y = Me.Y;
+
+            window.AsteroidList.push(Ast1);
+            window.AsteroidList.push(Ast2);
+
+          }
+
+          //split 5
+          if (Me.Div.className == "Asteroid5") {
+
+            var ii = window.AsteroidList.indexOf(Me)
+
+            if (ii >= 0) {
+              window.AsteroidList.splice(ii, 1);
+              window.Main.removeChild(Me.Div);
+            }
+
+            var Ast1 = new Asteroid("3")
+            Ast1.X = Me.X;
+            Ast1.Y = Me.Y;
+
+            var Ast2 = new Asteroid("4")
+            Ast2.X = Me.X;
+            Ast2.Y = Me.Y;
+
+            var Ast3 = new Asteroid("1")
+            Ast3.X = Me.X;
+            Ast3.Y = Me.Y;
+
+            window.AsteroidList.push(Ast1);
+            window.AsteroidList.push(Ast2);
+            window.AsteroidList.push(Ast3);
+
+          }
+
+          return true;
+
+        }
+        else {
+          return false;
+        }
+
+      }
+
+    }
+
+
+    function Bullet() {
+
+      this.Div = document.createElement('div');
+      this.Div.className = "Bullet";
+      window.Main.appendChild(this.Div);
+
+      this.X = 0;
+      this.Y = 0;
+
+      this.VelocityX = 0;
+      this.VelocityY = 0;
+
+      this.Angle = 0;
+
+      var Me = this;
+
+      this.ApplyAcceleration = function () {
+
+        Me.X = Me.X + Me.VelocityX;
+        Me.Y = Me.Y + Me.VelocityY;
+
+        Me.UpdatePosition();
+
+        var out = false;
+
+        //check if it is out of the screen
+        if ((Me.X < 0) || (Me.X > window.innerWidth) || (Me.Y < 0) || (Me.Y > window.innerHeight)) {
+
+          var ii = window.BulletList.indexOf(Me)
+
+          if (ii >= 0) {
+
+            try {
+
+              window.BulletList.splice(ii, 1);
+              window.Main.removeChild(Me.Div);
+
+            } catch (err) { }
+
+            out = true;
+
+          }
+
+        }
+
+        if (out == false) {
+
+          //Check for collisions
+
+          for (var i = 0; i < window.AsteroidList.length; i++) {
+            if (window.AsteroidList[i].ContainsPoint(Me.X, Me.Y)) {
+
+
+              try {
+
+                window.BulletList.splice(ii, 1);
+                window.Main.removeChild(Me.Div);
+
+              } catch (err) { }
+
+            }
+          }
+
+        }
+
+      }
+
+      this.UpdatePosition = function () {
+
+        Me.Div.style.left = Me.X - (Me.Div.clientWidth / 2) + 'px';
+        Me.Div.style.top = Me.Y - (Me.Div.clientHeight / 2) + 'px';
+        Me.Div.style.transform = 'rotate(' + Me.Angle + 'deg)';
+
+      }
+
+    }
+
+    function Ship() {
+
+      this.Div = document.createElement('div');
+      this.Div.className = "Ship";
+      window.Main.appendChild(this.Div);
+
+      this.X = 300;
+      this.Y = 300;
+
+      this.VelocityX = 0;
+      this.VelocityY = 0;
+      this.Angle = 0;
+
+      var Me = this;
+
+      this.ApplyAcceleration = function () {
+
+        Me.X = Me.X + Me.VelocityX;
+        Me.Y = Me.Y + Me.VelocityY;
+
+        if (Me.X < 0) {
+          Me.X = window.innerWidth - 5;
+        }
+
+        if (Me.X >= window.innerWidth) {
+          Me.X = 0;
+        }
+
+        if (Me.Y < 0) {
+          Me.Y = window.innerHeight - 5;
+        }
+
+        if (Me.Y > window.innerHeight) {
+          Me.Y = 0;
+        }
+
+        Me.UpdatePosition();
+
+      }
+
+      this.UpdatePosition = function () {
+
+        Me.Div.style.left = Me.X - (Me.Div.clientWidth / 2) + 'px';
+        Me.Div.style.top = Me.Y - (Me.Div.clientHeight / 2) + 'px';
+        Me.Div.style.transform = 'rotate(' + Me.Angle + 'deg)';
+
+      }
+
+      this.Boost = function (X, Y) {
+
+        var mX = X - Me.X;
+        var mY = Y - Me.Y;
+
+        var A = ((Math.atan(-mX / mY) * 180) / Math.PI);
+
+        if (mY < 0) (A = A - 180)
+
+        Me.Angle = A + 90;
+
+        Me.VelocityX = Me.VelocityX + (mX / 2000);
+        Me.VelocityY = Me.VelocityY + (mY / 2000);
+
+        if (Me.VelocityX > 10) { Me.VelocityX = 10 };
+        if (Me.VelocityY > 10) { Me.VelocityY = 10 };
+
+        Me.UpdatePosition();
+
+        //var f = 100;
+
+        //var fX = Math.sqrt(Math.abs((f * f) - (mX * mX)));
+        //if (mX < 0) { fX = fX * -1 };
+
+        //var fY = Math.sqrt(Math.abs((f * f) - (mY * mY)));
+        //if (mY < 0) { fY = fY * -1 };
+
+        FireBullet(Me.X, Me.Y, mX / 20, mY / 20, Me.Angle);
+        //FireBullet(Me.X, Me.Y, fX / 100, fY / 100, Me.Angle);
+
+      }
+
+    }
+
+    function FireBullet(x, y, vX, vY, A) {
+
+      var Bull = new Bullet;
+      Bull.X = x;
+      Bull.Y = y;
+      Bull.VelocityX = vX;
+      Bull.VelocityY = vY;
+      Bull.Angle = A;
+
+      window.BulletList.push(Bull);
+
+    }
+
+  </script>
+
+</head>
+<body onload="Load()">
+  <div id="Main">
+  </div>
+</body>
+</html>
